@@ -75,6 +75,12 @@ app.post('/login', async (req, res) => {
     }
 })
 
+// Clear cookie and Logout
+app.post('/logout', (req, res) => {
+    res.cookie('token', '').json(true)
+});
+
+
 app.listen(4000, function() {
     console.log('CORS listen')
 });
