@@ -5,6 +5,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser')
 const User = require('./models/User');
+const imageDownloader = require('image-downloader') 
+const path = require('path');
 require('dotenv').config();
 const app = express();
 
@@ -42,9 +44,9 @@ app.post('/register', async (req, res) => {
             email,
             password:bcrypt.hashSync(password, bcryptSalt),
         })
-        res.json(userDoc);
+        res.status(201).json(userDoc);
     } catch (e) {
-        res.status(422).json(e);
+        res.status(422).json('Error creating a new user',e);
     }
     
 });
@@ -71,7 +73,7 @@ app.post('/login', async (req, res) => {
             res.status(422).json('Password NOT Ok')
         }
     } else {
-        res.json('User NOT Found')
+        res.status(404).json('User NOT Found')
     }
 })
 
@@ -80,20 +82,60 @@ app.post('/logout', (req, res) => {
     res.cookie('token', '').json(true)
 });
 
+// Profile page
+app.get('/profile', (req, res) => {
+    const { token } = req.cookies;
+    if (token) {
+        jwt.verify(token, jwtSecret, {}, (err, userData) => {
+            if (err) {
+                // Handle error appropriately
+                return res.status(500).json({ error: 'Token verification failed' });
+            }
+            return res.json(userData); // Only send response if token is verified
+        });
+    } else {
+        return res.json(null); // Only send response if no token is present
+    }
+});
 
+console.log({__dirname})
+// Upload image link
+
+
+app.post('/upload-by-link', async (req, res) => {
+    try {
+        const { link } = req.body;
+        if (!link) {
+            return res.status(400).json({ error: 'The link is required' });
+        }
+
+        const newName = 'photo-upload-' + Date.now() + '.jpg';
+        const options = {
+            url: link,
+            dest: path.join(__dirname, 'uploads', newName)
+        };
+
+        await imageDownloader.image(options);
+        res.json({ filename: newName });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to download image' });
+    }
+});
 app.listen(4000, function() {
     console.log('CORS listen')
 });
 
-app.get('/profile', (req,res) => {
-    const {token} = req.cookies;
-    if (token) {
-        jwt.verify(token, jwtSecret, {},  (err, userData) => {
-            if (err) throw err;
-            res.json(userData)
-        })
-    } else {
-        res.json(null)
-    }
-    res.json({token});
-});
+// app.get('/profile', (req,res) => {
+//     const {token} = req.cookies;
+//     if (token) {
+//         jwt.verify(token, jwtSecret, {},  (err, userData) => {
+//             if (err) throw err;
+//             res.json(userData)
+//         })
+//     } else {
+//         res.json(null)
+//     }
+//     res.json({token});
+// });
+
