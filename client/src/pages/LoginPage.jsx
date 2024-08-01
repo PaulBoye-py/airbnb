@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useContext, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
-import { UserContext } from "../userContext";
+import { UserContext } from "../UserContext";
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
@@ -26,6 +26,7 @@ export default function LoginPage() {
             setRedirect(true);
         } catch(e) {
             alert('Unsuccessful login. Please check your credentials.')
+            setRedirect(false)
         }
     }
 
@@ -36,7 +37,7 @@ export default function LoginPage() {
 
     return (
         <div className="mt-4 grow flex flex-col items-center justify-around">
-            <div className="-mt-64">
+            <div className="-mt-62">
                 <h1 className="text-center text-4xl mb-4">Login</h1>
 
                 <form className="max-w-md mx-auto" onSubmit={handleLoginSubmit}>

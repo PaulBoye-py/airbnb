@@ -26,7 +26,7 @@ export default function RegisterPage() {
 
     return (
         <div className="mt-4 grow flex flex-col items-center justify-around">
-            <div className="-mt-64">
+            <div className="-mt-62">
                 <h1 className="text-center text-4xl mb-4">Register</h1>
                 <form className="max-w-md mx-auto" onSubmit={registerUser}>
                     <input 
