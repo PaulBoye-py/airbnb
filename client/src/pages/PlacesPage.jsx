@@ -49,6 +49,41 @@ export default function PlacesPage() {
         setPhotoLink('')
     }
 
+    // // Function to upload image as a file
+    // function uploadPhoto(e)  {
+    //     const files = e.target.files
+    //     const data = new FormData()
+    //     data.set('photos', files)
+    //     for (let i = 0; i < files.length; i++) {
+    //         data.append('photos', files[i])
+    //     }
+    //     axios.post('/upload', data, {
+    //         headers: {'Content-Type': 'multipart/form-data'}
+    //     }).then(response => {
+    //         const {data:filenames} = response
+    //         setAddedPhotos(prev => {
+    //             return [...prev, ...filenames]
+    //         })
+    //     })
+
+    // }
+    function uploadPhoto(e) {
+        const files = e.target.files;
+        const data = new FormData();
+        
+        for (let i = 0; i < files.length; i++) {
+            data.append('photos', files[i]);
+        }
+    
+        axios.post('/upload', data, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        }).then(response => {
+            const { data: filenames } = response;
+            setAddedPhotos(prev => [...prev, ...filenames]);
+        }).catch(error => {
+            console.error('Error uploading photos:', error);
+        });
+    }
     return (
         <div className="">
 
@@ -80,19 +115,20 @@ export default function PlacesPage() {
                             <button onClick={addPhotoByLink} className="bg-gray-200 grow rounded-2xl px-8">Add&nbsp;image</button>
                         </div>
 
-                        <div className="grid grid-cols-3 lg:grid-cols-6 md:grid-cols-4 mt-2">
+                        <div className="grid gap-2 grid-cols-3 lg:grid-cols-6 md:grid-cols-4 mt-2">
                             {addedPhotos.length > 0 && addedPhotos.map(link => (
-                                <div key={link}>
-                                    {link}
+                                <div className="flex h-32" key={link}>
+                                    <img className="rounded-2xl w-full object-cover" src={`http://localhost:4000/uploads/`+link} />
                                 </div>
                             ))}
 
-                            <button className="flex justify-center gap-1 border bg-transparent rounded-2xl p-8 text-gray-500 text-2xl">
+                            <label className="h-32 cursor-pointer flex items-center justify-center gap-1 border bg-transparent rounded-2xl p-2 text-gray-500 text-2xl">
+                                <input type="file" multiple hidden onChange={uploadPhoto} />
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6 mr-2">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
                                 </svg>
                                 Upload
-                            </button>
+                            </label>
                         </div>
 
                         {preInput('Description', 'Describe your apartment')}
